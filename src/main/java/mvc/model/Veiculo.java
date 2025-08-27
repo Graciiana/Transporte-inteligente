@@ -1,4 +1,13 @@
 package mvc.model;
+import lombok.*;
 
-public class Veiculos {
+@Data
+@ToString
+@AllArgsConstructor
+
+public class Veiculo {
+    private long idVeiculo;
+    private String tipoVeiculo;
+    private long capacidade;
+    private String matricula;
 }
