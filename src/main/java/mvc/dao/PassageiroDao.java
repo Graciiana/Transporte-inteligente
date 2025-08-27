@@ -21,6 +21,15 @@ public class PassageiroDao {
         ps.setString(3, pass.getNome());
         ps.setString(4, pass.getTelefone());
         ps.setFloat(5, pass.getSaldo());
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    public void removerPass(long id)throws SQLException{
+        String sql = "DELETE FROM passageiros where idPassageiro = ?";
+        PreparedStatement ps = connec.prepareStatement(sql);
+        ps.setLong(1, id);
+        ps.executeUpdate();
         ps.close();
     }
 }
