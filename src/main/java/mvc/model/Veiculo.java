@@ -10,4 +10,5 @@ public class Veiculo {
     private String tipoVeiculo;
     private long capacidade;
     private String matricula;
+    private long preco;
 }

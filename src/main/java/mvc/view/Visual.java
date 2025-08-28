@@ -3,7 +3,9 @@ package mvc.view;
 import mvc.Conector;
 import mvc.dao.PassageiroDao;
 import mvc.dao.RotaDao;
+import mvc.dao.ViagemDao;
 import mvc.dao.VeiculoDao;
+import mvc.dao.ViagemDao;
 import mvc.model.Passageiro;
 import mvc.model.Rota;
 import mvc.model.Veiculo;
@@ -24,16 +26,22 @@ public class Visual {
             PassageiroDao pass=new PassageiroDao(con);
             VeiculoDao veiculoDao = new VeiculoDao(con);
             RotaDao rotas = new RotaDao(con);
+            ViagemDao viagem = new ViagemDao(con);
 
-            do {
+
+
+            while (carregar){
+                System.out.println("================== Menu ==================");
                 System.out.println("[1]- Cadastro de passageiros");
                 System.out.println("[2]- Cadastro de Veiculos");
                 System.out.println("[3]- Cadastro de Rotas");
-                System.out.println("[4]- Relotório de pedidos");
-                System.out.println("[5]- Sair");
-                System.out.println("[6]- Remover passageiros");
+                System.out.println("[4]- Pedido de viagens");
+                System.out.println("[5]- Remover Dados");
+                System.out.println("[6]- Relotório de pedidos");
+                System.out.println("[7]- Sair");
                 System.out.print("Escolha uma opção: ");
                 String opcao=teclado.nextLine();
+                System.out.println("======================================================");
 
                 switch(opcao){
                     case "1":
@@ -54,7 +62,9 @@ public class Visual {
                         limpar();
                         break;
 
-                    case "2":
+                        case "2":
+                            System.out.println("----- Bem vindo ao menu para pedido de viagens -----");
+
                         System.out.println("----- Bem vindo a tela de Cadastro de veiculos -----");
                         System.out.println("==========================================");
                         System.out.print("Tipo: ");
@@ -64,7 +74,9 @@ public class Visual {
                         teclado.nextLine();
                         System.out.print("Matricula: ");
                         String matricula=teclado.nextLine();
-                        Veiculo veiculo = new Veiculo( 0, tipo, capacidade, matricula );
+                        System.out.print("Preco: ");
+                        long preco=teclado.nextLong();
+                        Veiculo veiculo = new Veiculo( 0, tipo, capacidade, matricula, preco );
                         veiculoDao.carrega(veiculo);
                         System.out.println("Dados cadastrados com sucesso");
                         limpar();
@@ -83,18 +95,47 @@ public class Visual {
                         limpar();
                         break;
 
-                        case "6":
-                        System.out.println("Escolha um dado para eliminar");
-                        long id = teclado.nextInt();
-                        pass.removerPass(id);
-                        System.out.println("Dados removidos com sucesso!");
-                        break;
+                    case "4":
 
+                        case "5":
+                        System.out.println("Escolha uma opcao para remover (passageiro/rota/veiculo))");
+                        String dadoRem=teclado.nextLine();
+
+                        if (dadoRem.equalsIgnoreCase("passage")){
+                            System.out.print("Escolha o id do passageiro: ");
+                            long id=teclado.nextInt();
+                            pass.removerPass(id);
+                            System.out.println("Dados removidos com sucesso!");
+                            teclado.nextLine();
+
+                        } else if (dadoRem.equalsIgnoreCase("rota") ) {
+                            System.out.print("Escolha o id da rota: ");
+                            long idRota=teclado.nextInt();
+                            rotas.removerRota(idRota);
+                            System.out.println("Dados removidos com sucesso!");
+                            teclado.nextLine();
+                        }
+                        else if(dadoRem.equalsIgnoreCase("veiculo")){
+                            System.out.print("Escolha o id do veiculo: ");
+                            long idVeiculo = teclado.nextInt();
+                            veiculoDao.removerVeiculo(idVeiculo);
+                            System.out.println("Dados removidos com sucesso!");
+                            teclado.nextLine();
+                        }
+                        else {
+                            System.out.println("Nenhum dado encontrado.");
+                            teclado.nextLine();
+                        }
+
+                        break;
+                    case "6":
+                        System.out.println("---- Relatorio de viagens ----");
+                      viagem.listarViagens();
 
                 }
 
 
-            }while (carregar);
+            }
 
         }catch (SQLException e){
             System.out.println("Erro ao conectar o banco: "+e.getMessage());

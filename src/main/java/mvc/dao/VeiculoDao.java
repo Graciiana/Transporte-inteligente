@@ -16,12 +16,21 @@ public class VeiculoDao {
     }
 
     public void carrega(Veiculo vei) throws SQLException {
-        String sql="INSERT INTO passageiros VALUES(?,?,?,?)";
+        String sql="INSERT INTO passageiros VALUES(?,?,?,?,?)";
         PreparedStatement ps=connec.prepareStatement(sql);
         ps.setLong(1, vei.getIdVeiculo());
         ps.setString(2, vei.getTipoVeiculo());
         ps.setLong(3, vei.getCapacidade());
         ps.setString(4, vei.getMatricula());
+        ps.setLong(5, vei.getPreco());
+        ps.close();
+    }
+
+    public void removerVeiculo(long id)throws SQLException{
+        String sql = "DELETE FROM veiculos where id = ?";
+        PreparedStatement ps = connec.prepareStatement(sql);
+        ps.setLong(1, id);
+        ps.executeUpdate();
         ps.close();
     }
 }

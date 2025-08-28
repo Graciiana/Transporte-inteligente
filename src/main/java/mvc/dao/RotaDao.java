@@ -19,4 +19,12 @@ public class RotaDao {
         ps.setString(3,rota.getDestino());
         ps.close();
     }
+
+    public void removerRota(long id)throws SQLException{
+        String sql = "DELETE FROM rota where id_rota = ?";
+        PreparedStatement ps = connec.prepareStatement(sql);
+        ps.setLong(1, id);
+        ps.executeUpdate();
+        ps.close();
+    }
 }
