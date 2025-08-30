@@ -1,18 +1,18 @@
 package mvc.view;
 
 import mvc.Conector;
-import mvc.dao.PassageiroDao;
-import mvc.dao.RotaDao;
-import mvc.dao.ViagemDao;
-import mvc.dao.VeiculoDao;
+import mvc.dao.*;
 import mvc.dao.ViagemDao;
 import mvc.model.Passageiro;
+import mvc.model.Preco;
 import mvc.model.Rota;
 import mvc.model.Veiculo;
+import mvc.service.PassageiroService;
 
 import java.nio.channels.FileLock;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Visual {
@@ -23,11 +23,12 @@ public class Visual {
 
         try{
             Connection con=new Conector().conection();
-            PassageiroDao pass=new PassageiroDao(con);
+            PassageiroDao passDao=new PassageiroDao(con);
             VeiculoDao veiculoDao = new VeiculoDao(con);
-            RotaDao rotas = new RotaDao(con);
-            ViagemDao viagem = new ViagemDao(con);
-
+            RotaDao rotasDao = new RotaDao(con);
+            ViagemDao viagemDao = new ViagemDao(con);
+            PrecoDao precoDao = new PrecoDao(con);
+            PassageiroService passageiroService = new PassageiroService(passDao);
 
 
             while (carregar){
@@ -37,8 +38,9 @@ public class Visual {
                 System.out.println("[3]- Cadastro de Rotas");
                 System.out.println("[4]- Pedido de viagens");
                 System.out.println("[5]- Remover Dados");
-                System.out.println("[6]- Relotório de pedidos");
-                System.out.println("[7]- Sair");
+                System.out.println("[6]- Lista de dados cadastrados");
+                System.out.println("[7]- Relotório de pedidos");
+                System.out.println("[8]- Sair");
                 System.out.print("Escolha uma opção: ");
                 String opcao=teclado.nextLine();
                 System.out.println("======================================================");
@@ -47,16 +49,15 @@ public class Visual {
                     case "1":
                         System.out.println("----- Bem vindo a tela de Cadastro de passageiros -----");
                         System.out.println("==========================================");
-                        System.out.print("Bi: ");
-                        String bi= teclado.nextLine();
                         System.out.print("Nome: ");
                         String nome=teclado.nextLine();
                         System.out.print("Telefone: ");
                         String telefone=teclado.nextLine();
                         System.out.print("Saldo do cartão: ");
                         float saldo=teclado.nextFloat();
-                        Passageiro passageiro = new Passageiro(0, bi, nome, telefone, saldo );
-                        pass.cadastroPass(passageiro);
+                        Passageiro passageiro = new Passageiro(0, nome, telefone, saldo );
+
+                        passageiroService.cadastrarPassageiro(passageiro);
                         teclado.nextLine();
                         System.out.println("Dados cadastrados com sucesso");
                         limpar();
@@ -74,9 +75,7 @@ public class Visual {
                         teclado.nextLine();
                         System.out.print("Matricula: ");
                         String matricula=teclado.nextLine();
-                        System.out.print("Preco: ");
-                        long preco=teclado.nextLong();
-                        Veiculo veiculo = new Veiculo( 0, tipo, capacidade, matricula, preco );
+                        Veiculo veiculo = new Veiculo( 0, tipo, capacidade, matricula);
                         veiculoDao.carrega(veiculo);
                         System.out.println("Dados cadastrados com sucesso");
                         limpar();
@@ -90,12 +89,14 @@ public class Visual {
                         System.out.print("Capacidade: ");
                         String destino = teclado.nextLine();
                         Rota rota= new Rota( 0, origem, destino );
-                        rotas.cadastroRota(rota);
+                        rotasDao.cadastroRota(rota);
                         System.out.println("Dados cadastrados com sucesso");
                         limpar();
                         break;
 
                     case "4":
+                        System.out.println("------- Faça a solicitação de uma viagem -------");
+                        System.out.println("=================================================");
 
                         case "5":
                         System.out.println("Escolha uma opcao para remover (passageiro/rota/veiculo))");
@@ -104,14 +105,14 @@ public class Visual {
                         if (dadoRem.equalsIgnoreCase("passage")){
                             System.out.print("Escolha o id do passageiro: ");
                             long id=teclado.nextInt();
-                            pass.removerPass(id);
+                            passDao.removerPass(id);
                             System.out.println("Dados removidos com sucesso!");
                             teclado.nextLine();
 
                         } else if (dadoRem.equalsIgnoreCase("rota") ) {
                             System.out.print("Escolha o id da rota: ");
                             long idRota=teclado.nextInt();
-                            rotas.removerRota(idRota);
+                            rotasDao.removerRota(idRota);
                             System.out.println("Dados removidos com sucesso!");
                             teclado.nextLine();
                         }
@@ -126,28 +127,51 @@ public class Visual {
                             System.out.println("Nenhum dado encontrado.");
                             teclado.nextLine();
                         }
-
                         break;
-                    case "6":
-                        System.out.println("---- Relatorio de viagens ----");
-                      viagem.listarViagens();
 
+                    case "6":
+                        System.out.println("=======================================");
+                        System.out.print("Escolha os dados que queres listar: (Passageiro/Rotas/veiculos, viagens): ");
+                        String opc = teclado.nextLine();
+
+                        if (opc.equalsIgnoreCase("passageiro")){
+                            passDao.lista();
+                        } else if (opc.equalsIgnoreCase("rotas")) {
+                            rotasDao.lista();
+                        } else if (opc.equalsIgnoreCase("veiculos")) {
+                            veiculoDao.lista();
+                        }
+                        else {
+                            System.out.println("Opcao invalida! ");
+                        }
+                        break;
+
+                    case "7":
+                        System.out.println("---- Relatorio de viagens ----");
+                        viagemDao.listarViagens();
+                        break;
+
+                    case "8":
+                        carregar=false;
+                        break;
+                    default:
+                        System.out.println("Opcao invalida.");
+                }
+            }
+
+                }catch (SQLException e){
+                    System.out.println("Erro ao conectar o banco: "+e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 }
 
 
-            }
 
-        }catch (SQLException e){
-            System.out.println("Erro ao conectar o banco: "+e.getMessage());
-        }
-    }
+                //Metodo para limpar a tela
 
-
-
-    //Metodo para limpar a tela
-
-    public void limpar(){
-        System.out.println("\033[H\033[2J");
-        System.out.flush();
-    }
-}
+                public void limpar(){
+                System.out.println("\033[H\033[2J");
+                System.out.flush();
+                }
+                }

@@ -1,5 +1,6 @@
 package mvc;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,12 +15,6 @@ public class Conector {
 
         try {
             conn = DriverManager.getConnection(url, user, pass);
-            if (conn!=null){
-                System.out.println("Conexao feita com sucesso!");
-            }
-            else {
-                System.out.println("Falha ao conectar.");
-            }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
